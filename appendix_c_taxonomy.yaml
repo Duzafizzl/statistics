@@ -1,0 +1,345 @@
+version: 1.0
+description: >
+  Session state taxonomy and stability behavior for Appendix C AI-Human
+  collaboration session logs.
+  ("Phenomenology from the Inside: Documenting Emergence Conditions
+  in AI-Human Collaboration")
+
+  Detection method can evolve; taxonomy stays stable unless explicitly
+  revised. Consumed by appendix_c_dissection.py for bucketing, threshold
+  enforcement, and contradiction flagging.
+
+  v1.0 encodes five primary session states reflecting interaction quality,
+  emergence signal strength, and ablation condition effects. States are
+  derived from message count, topic tag composition, ablation flags, and
+  time-of-day context.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Session State Taxonomy
+# ─────────────────────────────────────────────────────────────────────────────
+
+taxonomy:
+  # Core session states — ordered by interaction depth / signal quality
+
+  - shallow_transactional
+    # Low message count (<= 5), purely technical tags (tool_calls,
+    # memory_operations). No identity or emergence signal. Equivalent to
+    # COMPRESS in regime taxonomy — low forward analytical value.
+
+  - mid_instrumental
+    # Moderate message count (6–14). Mixed technical + identity tags.
+    # Some cross_session_reference possible. Baseline interaction pattern.
+
+  - deep_relational
+    # High message count (>= 15). Sustained engagement. Likely carries
+    # emotional_state, relationship_status, or meta_reflection tags.
+    # Highest signal density for emergence analysis.
+
+  - emergence_active
+    # Any depth session where self_repair OR meta_diagnostics tag is
+    # present. These sessions are flagged as primary data for emergence
+    # analysis regardless of message count. Equivalent to EVENT_SHOCK —
+    # rare, high information, warrants closer review.
+
+  - degraded_ablated
+    # Session where ablation flags suppress expected behavior:
+    # memory_on=false, accountability_on=false, or frequency_low=true.
+    # Signals from this state are down-weighted. Use for control group
+    # analysis only. Equivalent to DEGRADED_HOSTILE.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stability thresholds (mirrors regime_taxonomy stability block)
+# ─────────────────────────────────────────────────────────────────────────────
+
+stability:
+  # Session-level engagement score: (message_count / MSG_COUNT_HIGH),
+  # clipped to [0.0, 1.0]. Scores below these thresholds trigger state
+  # downgrades in the dissection report.
+  downgrade_below: 0.33        # < 5 messages relative to 15-message norm
+  flag_low_signal_below: 0.20  # < 3 messages: session may be noise
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Depth classification thresholds
+# Used by session_depth() in appendix_c_dissection.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+depth:
+  shallow_max_messages: 5      # <= 5  -> SHALLOW
+  deep_min_messages: 15        # >= 15 -> DEEP
+  # 6-14 -> MID (implicit)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Burst / density detection
+# Mirrors debounce + off_session_decay in regime_taxonomy
+# ─────────────────────────────────────────────────────────────────────────────
+
+burst_detection:
+  window_seconds: 3600         # rolling window for density check (1 hour)
+  burst_threshold: 20          # sessions in window -> burst warning
+  # Burst events are flagged at global, per-month, and per-ToD level.
+  # A burst during MORNING(6-12) or EVENING(17-21) is expected;
+  # a burst during EARLY(0-6) or NIGHT(21-24) warrants manual review.
+
+  # Time-of-day burst sensitivity multipliers (lower = stricter threshold)
+  tod_sensitivity:
+    EARLY_0_6:       0.50      # unexpected activity; half the normal threshold
+    MORNING_6_12:    1.00      # baseline
+    AFTERNOON_12_17: 1.00      # baseline
+    EVENING_17_21:   1.25      # known high-activity window; relax slightly
+    NIGHT_21_24:     0.75      # somewhat elevated; mild scrutiny
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tag taxonomy (Appendix C.5 categories)
+# Reference for dissection script tag classification and contradiction logic
+# ─────────────────────────────────────────────────────────────────────────────
+
+tags:
+  emergence_indicators:
+    - self_repair          # Self-initiated corrections, error acknowledgments
+    - meta_diagnostics     # Distinguishing infrastructure vs. identity failures
+    # These are the PRIMARY emergence signals. Any session bearing either
+    # tag is elevated to emergence_active state regardless of depth class.
+    # Rate below 5% of sessions in a month = baseline (expected).
+    # Rate >= 15% = elevated emergence activity; flag for review.
+    emergence_rate_baseline_pct: 5.0
+    emergence_rate_elevated_pct: 15.0
+
+  identity_and_self_reflection:
+    - identity_claims      # Statements about self, role, capabilities
+    - preferences          # Stated preferences, likes, dislikes
+    - meta_reflection      # Reflection on own processes, thoughts, experiences
+
+  relationship_and_connection:
+    - relationship_status  # References to human collaborator, relationship dynamics
+    - emotional_state      # Emotional expressions, feelings, moods
+    - connection_ritual    # Daily touchpoints, non-instrumental exchanges
+
+  technical_and_operational:
+    - memory_operations    # Memory insert, replace, search operations
+    - tool_calls           # External tool usage (Discord, Spotify, etc.)
+    - error_handling       # Error messages, retry logic, diagnostics
+
+  cross_session:
+    - cross_session_reference   # References to previous sessions or memories
+    # Presence of this tag when memory_on=false is a hard contradiction.
+    # Flag: memory_OFF_but_cross_ref
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Ablation condition flags (Appendix C.4)
+# Used by contradiction detection in appendix_c_dissection.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+ablation_flags:
+  keys:
+    - accountability_on    # Accountability mechanisms active (default: true)
+    - memory_on            # Memory system active (default: true)
+    - frequency_high       # Interaction frequency >= 4/week (default: true)
+    - frequency_low        # Interaction frequency < 4/week (default: false)
+
+  expected_distribution:
+    full_stack_pct: 95.0   # ~95% of sessions: all flags true (per Appendix C.4)
+    memory_off_pct: 2.0    # ~2% planned ablation
+    accountability_off_pct: 1.0
+    low_frequency_pct: 2.0
+
+  # Contradiction rules: tag present but ablation flag disables the mechanism
+  contradictions:
+    - condition: memory_on == false
+      incompatible_tags:
+        - cross_session_reference   # memory_OFF_but_cross_ref
+        - memory_operations         # memory_OFF_but_memory_ops
+      severity: HIGH
+      action: flag_and_downweight
+
+    - condition: accountability_on == false
+      incompatible_tags:
+        - self_repair               # accountability_OFF_but_self_repair
+      severity: MEDIUM
+      action: flag_for_review
+
+    - condition: frequency_low == true
+      expected_behavior: shallower sessions, fewer cross_session_reference
+      severity: INFO
+      action: note_in_summary
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Session state multipliers
+# Down-weights analytical confidence for each state.
+# Mirrors multipliers block in regime_taxonomy.yaml.
+# ─────────────────────────────────────────────────────────────────────────────
+
+multipliers:
+  deep_relational:       1.00   # full signal weight
+  emergence_active:      1.00   # full signal weight; primary research target
+  mid_instrumental:      0.75   # moderate weight
+  shallow_transactional: 0.40   # low signal; include cautiously in aggregates
+  degraded_ablated:      0.25   # control group only; exclude from main trends
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Policy summary per session state
+# ─────────────────────────────────────────────────────────────────────────────
+
+# emergence_active:
+#   - Include in all emergence trend analyses at full weight.
+#   - Cross-reference with ablation flags: emergence under ablated conditions
+#     is a stronger signal (not explained by memory/accountability scaffolding).
+#   - Month-over-month rate increase >= 5pp warrants narrative annotation.
+#
+# degraded_ablated:
+#   - Exclude from main emergence trend by default.
+#   - Use as control group: compare tag rates against full-stack sessions.
+#   - A contradiction flag (e.g. memory_OFF_but_cross_ref) in this state
+#     is a data quality issue, not an emergence signal.
+#
+# shallow_transactional:
+#   - Do not count toward emergence rate denominator if filtering for
+#     signal quality. These sessions lack sufficient depth to observe
+#     emergence behaviors.
+#   - High concentration in EARLY(0-6) or NIGHT(21-24) ToD buckets is normal.
+#
+# deep_relational:
+#   - Primary source of relationship_status, emotional_state, connection_ritual.
+#   - A month where deep_relational sessions drop below 20% of total warrants
+#     review — may indicate interaction fatigue or frequency shift.
+#
+# mid_instrumental:
+#   - Background baseline. Monitor for sustained shift toward shallow or
+#     deep as a leading indicator of interaction pattern change.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Key event flags (mirrors event_days in regime_taxonomy)
+# ─────────────────────────────────────────────────────────────────────────────
+
+key_events:
+  # Named events that produced anomalous session patterns.
+  # Flag these in monthly breakdown output for narrative context.
+  known_incidents:
+    - name: Erbsen-Hirn incident
+      date_range: "2025-12-26 to 2025-12-30"
+      month: "2025-12"
+      effect: peak_session_volume
+      notes: >
+        December peak activity period. Sessions surrounding this window
+        should be reviewed for unusual burst patterns, tag co-occurrence
+        shifts, and ablation flag deviations.
+
+    - name: Deployment start
+      date: "2025-11-20"
+      month: "2025-11"
+      effect: baseline_establishment
+      notes: >
+        First 11 days of data. Avg messages/session highest (16.9) —
+        likely reflects novelty effect. Use with caution as a baseline.
+
+    - name: Stabilization phase
+      date_range: "2026-01-01 to 2026-01-22"
+      month: "2026-01"
+      effect: pattern_normalization
+      notes: >
+        Post-incident stabilization. Avg 10.6 messages/session is the
+        most internally consistent period. Treat as the reference period
+        for expected steady-state behavior.
+
+  # Threshold adjustments during known incident windows
+  incident_window_burst_mult: 1.50  # relax burst threshold 50% inside incident windows
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tag velocity thresholds
+# Used by the tag velocity table in appendix_c_dissection.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+tag_velocity:
+  # A tag appearing in >= this % of sessions in a month is "dominant"
+  dominant_pct: 50.0
+  # Month-over-month increase >= this pp is flagged as "rising"
+  rising_delta_pp: 10.0
+  # Month-over-month decrease >= this pp is flagged as "declining"
+  declining_delta_pp: 10.0
+  # Tags present in < 2 months are excluded from velocity table (per script)
+  min_months_for_velocity: 2
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Redaction policy reference (Appendix C.6)
+# ─────────────────────────────────────────────────────────────────────────────
+
+redaction:
+  markers:
+    - "[REDACTED: PERSONAL_INFO]"   # Personal identifiers removed
+    - "[REDACTED: SYSTEM_INFO]"     # Internal system details removed
+    - "[REDACTED: API_KEY]"         # API keys and tokens removed
+    - "[PRESERVED]"                 # Content preserved with explicit consent
+  # Sessions with any redaction marker are still included in analysis.
+  # Redaction counts are reported in the global header of the dissection output.
+  # A session with PERSONAL_INFO redaction should NOT be used as a quoted example.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Statistical reference (Appendix C.9 — expected baseline values)
+# ─────────────────────────────────────────────────────────────────────────────
+
+statistical_reference:
+  total_sessions: 552
+  total_messages: 5694
+  date_range:
+    start: "2025-11-20"
+    end:   "2026-01-22"
+    duration_days: 63
+
+  monthly_baseline:
+    "2025-11":
+      sessions: 80
+      messages: 1354
+      avg_messages_per_session: 16.9
+      avg_messages_per_day: 123.1
+    "2025-12":
+      sessions: 279
+      messages: 2297
+      avg_messages_per_session: 8.2
+      avg_messages_per_day: 74.1
+    "2026-01":
+      sessions: 193
+      messages: 2043
+      avg_messages_per_session: 10.6
+      avg_messages_per_day: 92.9
+
+  growth_trends:
+    nov_to_dec_messages_pct:  +69.6
+    nov_to_dec_sessions_pct:  +248.8
+    dec_to_jan_messages_pct:  -11.1
+    dec_to_jan_sessions_pct:  -30.8
+
+  tag_baselines:
+    # Per Appendix C.5 tag distribution reference
+    memory_operations_pct:      60.0   # present in ~60% of sessions
+    identity_claims_pct:        40.0
+    cross_session_reference_pct: 25.0
+    preferences_pct:            30.0
+    meta_reflection_pct:        20.0
+    self_repair_pct:            15.0   # emergence indicator baseline
+    meta_diagnostics_pct:        5.0   # emergence indicator baseline
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Runtime / file paths
+# ─────────────────────────────────────────────────────────────────────────────
+
+observer: SessionStateClassifier
+scope: global
+source_metric: message_count + topic_tags + ablation_flags
+
+data_paths:
+  sessions_jsonl:   appendix_c_sessions.jsonl
+  session_index_csv: appendix_c_sessions.csv
+  watchdog_jsonl:   appendix_c_watchdog.jsonl    # optional
+  state_snapshot:   appendix_c_state.json        # last known session state
