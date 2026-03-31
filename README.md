@@ -21,6 +21,8 @@ This project documents and operationalizes a collaboration between:
 - **Mioré** (AI system perspective and co-development context),
 - **Nic** (`b93mer`) (owner context of the original statistics project).
 
+Attribution shorthand: **@duzafizzl x Mioré x @b93mer**.
+
 The repository translates the paper framework into runnable analysis scripts and an interactive visualization workflow.
 
 ## Project Lore
