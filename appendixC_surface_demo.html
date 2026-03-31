@@ -1,0 +1,739 @@
+<!--
+File: appendixC_surface_demo.html
+Description: Standalone browser demo for the Appendix-C 3D surface using pipeline or mock data.
+Created: 2026-03-31
+Last updated: 2026-03-31
+-->
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appendix C Surface Demo</title>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --line: #1a2040;
+      --text: #88bbcc;
+      --accent: #ffcc66;
+      --btn: #223;
+      --btn-active: #1a1428;
+    }
+    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: "JetBrains Mono", monospace; }
+    #root { width: 100%; height: 100%; display: flex; flex-direction: column; }
+    #header { padding: 14px 18px 8px; border-bottom: 1px solid var(--line); }
+    #title { font-size: 18px; margin: 0; }
+    #subtitle { font-size: 11px; opacity: 0.65; margin-top: 4px; }
+    #canvasWrap { flex: 1; min-height: 0; }
+    #controls { border-top: 1px solid var(--line); padding: 12px 18px 16px; background: linear-gradient(180deg, #0c1020, #0a0e1a); }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    button {
+      border: 1px solid #335577;
+      background: transparent;
+      color: var(--text);
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 11px;
+    }
+    button.active { border-color: #cc8844; background: var(--btn-active); color: var(--accent); }
+    input[type="range"] { width: 260px; }
+    select {
+      border: 1px solid #335577;
+      background: #0f1730;
+      color: var(--text);
+      border-radius: 4px;
+      padding: 4px 8px;
+      font: inherit;
+      font-size: 11px;
+    }
+    #meta { margin-left: auto; font-size: 10px; opacity: 0.55; }
+    #smartDescription {
+      margin-top: 6px;
+      font-size: 11px;
+      opacity: 0.82;
+      color: #b8d7e7;
+      min-height: 16px;
+    }
+    #hoverTip {
+      position: fixed;
+      pointer-events: none;
+      z-index: 20;
+      display: none;
+      background: rgba(7, 13, 30, 0.92);
+      border: 1px solid #335577;
+      border-radius: 6px;
+      padding: 6px 8px;
+      color: #d6f2ff;
+      font-size: 11px;
+      white-space: nowrap;
+      backdrop-filter: blur(2px);
+    }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div id="header">
+      <h1 id="title">Appendix C Data Surface</h1>
+      <div id="subtitle">X = Tag baselines, Z = timeline, Y = intensity per metric</div>
+      <div id="smartDescription">Hover over the surface to inspect values and context.</div>
+    </div>
+    <div id="canvasWrap"></div>
+    <div id="controls">
+      <div class="row">
+        <span style="font-size:10px;opacity:.7;">Metric:</span>
+        <button data-preset="sessions">sessions</button>
+        <button data-preset="messages" class="active">messages</button>
+        <button data-preset="avg_messages_per_session">avg/sess</button>
+        <button data-preset="avg_messages_per_day">avg/day</button>
+      </div>
+      <div class="row">
+        <span style="font-size:10px;opacity:.7;">Time range:</span>
+        <select id="timeRange">
+          <option value="all">all</option>
+          <option value="first_half">first half</option>
+          <option value="second_half">second half</option>
+          <option value="custom">custom</option>
+        </select>
+        <label style="font-size:10px;">From
+          <select id="fromMonth"></select>
+        </label>
+        <label style="font-size:10px;">To
+          <select id="toMonth"></select>
+        </label>
+        <button id="recalcBtn">Recalculate</button>
+      </div>
+      <div class="row">
+        <button id="playBtn">▶ Animate</button>
+        <button id="wireBtn" class="active">Wire On</button>
+        <label style="font-size:10px;">Speed
+          <input id="speed" type="range" min="0.2" max="5" step="0.1" value="1.2" />
+        </label>
+        <label style="font-size:10px;">Rhythm
+          <select id="rhythmMode">
+            <option value="linear" selected>linear</option>
+            <option value="smooth">smooth</option>
+            <option value="pulse">pulse</option>
+            <option value="chaotic">chaotic</option>
+          </select>
+        </label>
+        <label style="font-size:10px;">Frame
+          <input id="frame" type="range" min="0" max="1" step="1" value="0" />
+        </label>
+        <div id="meta">Frame 1/1</div>
+      </div>
+    </div>
+  </div>
+  <div id="hoverTip"></div>
+
+  <script type="importmap">
+    { "imports": { "three": "https://esm.sh/three@0.180.0" } }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+
+    function log(level, module, message, context = {}) {
+      const payload = { timestamp: new Date().toISOString(), level, module, message, ...context };
+      const txt = JSON.stringify(payload);
+      if (level === "ERROR" || level === "CRITICAL") console.error(txt);
+      else if (level === "WARN") console.warn(txt);
+      else console.info(txt);
+    }
+
+    function infernoColor(t) {
+      const clamped = Math.max(0, Math.min(1, t));
+      const stops = [
+        [0.0, 0.02, 0.01, 0.12], [0.15, 0.09, 0.03, 0.33], [0.3, 0.26, 0.01, 0.52], [0.45, 0.48, 0.03, 0.53],
+        [0.6, 0.68, 0.14, 0.38], [0.75, 0.86, 0.34, 0.18], [0.9, 0.96, 0.6, 0.06], [1.0, 0.99, 0.91, 0.48],
+      ];
+      let i = 0;
+      for (; i < stops.length - 2; i += 1) if (clamped <= stops[i + 1][0]) break;
+      const s0 = stops[i], s1 = stops[i + 1], f = (clamped - s0[0]) / (s1[0] - s0[0]);
+      return [s0[1] + f * (s1[1] - s0[1]), s0[2] + f * (s1[2] - s0[2]), s0[3] + f * (s1[3] - s0[3])];
+    }
+
+    function smoothstep(t) {
+      const x = Math.max(0, Math.min(1, t));
+      return x * x * (3 - 2 * x);
+    }
+
+    function catmullRom(p0, p1, p2, p3, t) {
+      const t2 = t * t;
+      const t3 = t2 * t;
+      return 0.5 * (
+        (2 * p1) +
+        (-p0 + p2) * t +
+        (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 +
+        (-p0 + 3 * p1 - 3 * p2 + p3) * t3
+      );
+    }
+
+    function sampleRowSmooth(values, sampleCount) {
+      const n = values.length;
+      if (n < 2) return values.slice();
+      const out = [];
+      for (let i = 0; i < sampleCount; i += 1) {
+        const u = (i / Math.max(1, sampleCount - 1)) * (n - 1);
+        const k = Math.floor(u);
+        const t = u - k;
+        const k0 = Math.max(0, k - 1);
+        const k1 = Math.max(0, Math.min(n - 1, k));
+        const k2 = Math.max(0, Math.min(n - 1, k + 1));
+        const k3 = Math.max(0, Math.min(n - 1, k + 2));
+        const v = catmullRom(values[k0], values[k1], values[k2], values[k3], t);
+        out.push(v);
+      }
+      return out;
+    }
+
+    function smoothRowsPass(rows) {
+      return rows.map((row, idx) => {
+        const prev = rows[Math.max(0, idx - 1)].values;
+        const curr = row.values;
+        const next = rows[Math.min(rows.length - 1, idx + 1)].values;
+        return {
+          ...row,
+          values: curr.map((v, j) => 0.2 * prev[j] + 0.6 * v + 0.2 * next[j]),
+        };
+      });
+    }
+
+    function toFrames(data, metricPreset, filterConfig = { mode: "all", fromMonth: "", toMonth: "" }) {
+      const monthly = data?.statistical_reference?.monthly_baseline || {};
+      const tags = data?.statistical_reference?.tag_baselines || {};
+      const allMonths = Object.keys(monthly).sort();
+      let months = [...allMonths];
+      if (filterConfig.mode === "first_half") {
+        months = allMonths.slice(0, Math.max(1, Math.ceil(allMonths.length / 2)));
+      } else if (filterConfig.mode === "second_half") {
+        months = allMonths.slice(Math.max(0, Math.floor(allMonths.length / 2)));
+      } else if (filterConfig.mode === "custom") {
+        const fromIdx = Math.max(0, allMonths.indexOf(filterConfig.fromMonth));
+        const toIdxRaw = allMonths.indexOf(filterConfig.toMonth);
+        const toIdx = toIdxRaw >= 0 ? toIdxRaw : allMonths.length - 1;
+        const lo = Math.min(fromIdx, toIdx);
+        const hi = Math.max(fromIdx, toIdx);
+        months = allMonths.slice(lo, hi + 1);
+      }
+      if (months.length === 0) months = [...allMonths];
+
+      const tagRows = Object.entries(tags).map(([k, v]) => ({ name: k.replace("_pct", ""), baselinePct: Number(v) || 0 }));
+      const wave = data?.surface_wave || {};
+      const waveMonths = Array.isArray(wave.months) ? wave.months : [];
+      const modByTag = wave?.modulation_by_tag || {};
+      const tagDynamics = wave?.tag_dynamics || {};
+      const eventSpikes = Array.isArray(wave?.event_spikes) ? wave.event_spikes : [];
+      const maxSessions = Math.max(1, ...months.map((m) => Number(monthly[m]?.sessions) || 0));
+      const maxMessages = Math.max(1, ...months.map((m) => Number(monthly[m]?.messages) || 0));
+      const maxAvgSess = Math.max(1, ...months.map((m) => Number(monthly[m]?.avg_messages_per_session) || 0));
+      const maxAvgDay = Math.max(1, ...months.map((m) => Number(monthly[m]?.avg_messages_per_day) || 0));
+
+      const rowsRaw = months.map((month, monthIndex) => {
+        const d = monthly[month] || {};
+        const factors = {
+          sessions: (Number(d.sessions) || 0) / maxSessions,
+          messages: (Number(d.messages) || 0) / maxMessages,
+          avg_messages_per_session: (Number(d.avg_messages_per_session) || 0) / maxAvgSess,
+          avg_messages_per_day: (Number(d.avg_messages_per_day) || 0) / maxAvgDay,
+        };
+        const factor = factors[metricPreset] || factors.messages;
+        return {
+          month,
+          values: tagRows.map((t, tagIndex) => {
+            const rawTagKey = `${t.name}_pct`;
+            const waveSeries = Array.isArray(modByTag[rawTagKey]) ? modByTag[rawTagKey] : [];
+            const waveIdx = waveMonths.indexOf(month);
+            const waveMult = waveIdx >= 0 && waveIdx < waveSeries.length ? Number(waveSeries[waveIdx]) || 1.0 : 1.0;
+            const dyn = tagDynamics[rawTagKey] || {};
+            const phase = Number(dyn.phase) || 0.0;
+            const f1 = Number(dyn.freq_primary) || 1.3;
+            const f2 = Number(dyn.freq_secondary) || 3.1;
+            const a1 = Number(dyn.amp_primary) || 0.22;
+            const a2 = Number(dyn.amp_secondary) || 0.09;
+            const ridge = Number(dyn.tag_ridge) || 0.08;
+
+            const x = monthIndex / Math.max(1, months.length - 1);
+            const tNorm = tagIndex / Math.max(1, tagRows.length - 1);
+            const coupledWave = (
+              1.0
+              + a1 * Math.sin(2 * Math.PI * (x * f1 + tNorm * 0.4) + phase)
+              + a2 * Math.cos(2 * Math.PI * (x * f2 - tNorm * 0.8) + phase * 0.37)
+              + ridge * Math.sin(2 * Math.PI * (tNorm * 2.2 + x * 1.7))
+            );
+
+            let spikeBoost = 0;
+            for (const spike of eventSpikes) {
+              const dm = monthIndex - (Number(spike.month_index) || 0);
+              const dt = tagIndex - (Number(spike.tag_index) || 0);
+              const width = Math.max(0.2, Number(spike.width) || 0.8);
+              const strength = Number(spike.strength) || 0;
+              const gauss = Math.exp(-((dm * dm + dt * dt) / (2 * width * width)));
+              spikeBoost += strength * gauss;
+            }
+
+            const raw = t.baselinePct * (0.5 + factor * 0.9) * waveMult * coupledWave + spikeBoost * 14.0;
+            return Math.max(0, Math.min(100, raw));
+          }),
+        };
+      });
+      const rows = smoothRowsPass(rowsRaw);
+
+      const frames = [];
+      const steps = 38;
+      for (let i = 0; i < rows.length - 1; i += 1) {
+        for (let s = 0; s < steps; s += 1) {
+          const t = s / steps;
+          const te = smoothstep(t);
+          frames.push({
+            t: i + te,
+            values: rows[i].values.map((v, idx) => v + (rows[i + 1].values[idx] - v) * te),
+          });
+        }
+      }
+      if (rows.length) frames.push({ t: rows.length - 1, values: [...rows[rows.length - 1].values] });
+      return { tags: tagRows.map((t) => t.name), frames, months };
+    }
+
+    async function main() {
+      const traceId = `demo-${Date.now()}`;
+      const canvasWrap = document.getElementById("canvasWrap");
+      const frameSlider = document.getElementById("frame");
+      const speedSlider = document.getElementById("speed");
+      const rhythmModeSelect = document.getElementById("rhythmMode");
+      const playBtn = document.getElementById("playBtn");
+      const wireBtn = document.getElementById("wireBtn");
+      const meta = document.getElementById("meta");
+      const smartDescription = document.getElementById("smartDescription");
+      const hoverTip = document.getElementById("hoverTip");
+      const presetButtons = [...document.querySelectorAll("[data-preset]")];
+      const timeRange = document.getElementById("timeRange");
+      const fromMonth = document.getElementById("fromMonth");
+      const toMonth = document.getElementById("toMonth");
+      const recalcBtn = document.getElementById("recalcBtn");
+
+      async function loadDataWithFallback() {
+        const params = new URLSearchParams(window.location.search);
+        const source = (params.get("source") || "").toLowerCase();
+        const preferMock = source === "mock";
+        const candidates = preferMock
+          ? ["./mock_data/appendix_c_mock_data.json", "./data/appendix_c_surface_data.json"]
+          : ["./data/appendix_c_surface_data.json", "./mock_data/appendix_c_mock_data.json"];
+        for (const candidate of candidates) {
+          try {
+            const response = await fetch(candidate);
+            if (!response.ok) continue;
+            const json = await response.json();
+            log("INFO", "demo.data", "Data source loaded", { trace_id: traceId, source_url: candidate });
+            return json;
+          } catch (error) {
+            log("WARN", "demo.data", "Data source failed", {
+              trace_id: traceId,
+              source_url: candidate,
+              error_message: error?.message || String(error),
+            });
+          }
+        }
+        throw new Error("No valid data source found (pipeline/mock).");
+      }
+
+      const data = await loadDataWithFallback();
+      let metricPreset = "messages";
+      let wireOn = true;
+      let animating = false;
+      let speed = 1.2;
+      let rhythmMode = "linear";
+      let timeSlice = 0;
+      let frameReq = null;
+      let rhythmPhase = 0;
+      const allMonths = Object.keys(data?.statistical_reference?.monthly_baseline || {}).sort();
+      let filterConfig = {
+        mode: "all",
+        fromMonth: allMonths[0] || "",
+        toMonth: allMonths[allMonths.length - 1] || "",
+      };
+      let matrix = toFrames(data, metricPreset, filterConfig);
+      timeSlice = Math.max(0, matrix.frames.length - 1);
+
+      function syncMonthSelects() {
+        fromMonth.innerHTML = "";
+        toMonth.innerHTML = "";
+        for (const m of allMonths) {
+          const o1 = document.createElement("option");
+          o1.value = m;
+          o1.textContent = m;
+          const o2 = document.createElement("option");
+          o2.value = m;
+          o2.textContent = m;
+          fromMonth.appendChild(o1);
+          toMonth.appendChild(o2);
+        }
+        fromMonth.value = filterConfig.fromMonth || allMonths[0] || "";
+        toMonth.value = filterConfig.toMonth || allMonths[allMonths.length - 1] || "";
+      }
+      syncMonthSelects();
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(canvasWrap.clientWidth || 980, canvasWrap.clientHeight || 640);
+      renderer.setClearColor(0x0a0e1a);
+      canvasWrap.appendChild(renderer.domElement);
+
+      const scene = new THREE.Scene();
+      scene.fog = new THREE.FogExp2(0x0a0e1a, 0.03);
+      const camera = new THREE.PerspectiveCamera(45, (canvasWrap.clientWidth || 980) / (canvasWrap.clientHeight || 640), 0.1, 100);
+      scene.add(new THREE.AmbientLight(0x889aaa, 1.2));
+      const d = new THREE.DirectionalLight(0xffeedd, 0.8);
+      d.position.set(6, 8, 5);
+      scene.add(d);
+      camera.position.set(7, 6, 7);
+      camera.lookAt(0, 0.8, 0);
+
+      // Axes + labels
+      const axisMat = new THREE.LineBasicMaterial({ color: 0x556688, transparent: true, opacity: 0.55 });
+      function makeAxis(from, to) {
+        const g = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(...from),
+          new THREE.Vector3(...to),
+        ]);
+        return new THREE.Line(g, axisMat);
+      }
+      scene.add(makeAxis([-3, 0, -3], [3, 0, -3]));   // X
+      scene.add(makeAxis([-3, 0, -3], [-3, 0, 3]));   // Z
+      scene.add(makeAxis([-3, 0, -3], [-3, 3.8, -3])); // Y
+
+      // White cluster/grid lines on base planes for better orientation
+      const clusterMat = new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.14,
+      });
+      function addClusterLine(from, to) {
+        const g = new THREE.BufferGeometry().setFromPoints([
+          new THREE.Vector3(...from),
+          new THREE.Vector3(...to),
+        ]);
+        scene.add(new THREE.Line(g, clusterMat));
+      }
+      const xTicks = 12;
+      const zTicks = 16;
+      const yTicks = 8;
+      for (let i = 0; i <= xTicks; i += 1) {
+        const x = -3 + (6 * i) / xTicks;
+        addClusterLine([x, 0, -3], [x, 0, 3]);         // Floor, parallel to Z
+        addClusterLine([x, 0, -3], [x, 3.2, -3]);      // Back wall, vertical
+      }
+      for (let i = 0; i <= zTicks; i += 1) {
+        const z = -3 + (6 * i) / zTicks;
+        addClusterLine([-3, 0, z], [3, 0, z]);         // Floor, parallel to X
+      }
+      for (let i = 0; i <= yTicks; i += 1) {
+        const y = (3.2 * i) / yTicks;
+        addClusterLine([-3, y, -3], [3, y, -3]);       // Back wall, horizontal
+      }
+      // Third wall (between Intensity Y and Timeline Z), X=-3
+      for (let i = 0; i <= zTicks; i += 1) {
+        const z = -3 + (6 * i) / zTicks;
+        addClusterLine([-3, 0, z], [-3, 3.2, z]);      // Side wall, vertical
+      }
+      for (let i = 0; i <= yTicks; i += 1) {
+        const y = (3.2 * i) / yTicks;
+        addClusterLine([-3, y, -3], [-3, y, 3]);       // Side wall, horizontal
+      }
+
+      function makeLabel(text, pos, size = 0.3) {
+        const canvas = document.createElement("canvas");
+        canvas.width = 320;
+        canvas.height = 64;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.fillStyle = "#77cccc";
+        ctx.font = "bold 32px monospace";
+        ctx.textAlign = "center";
+        ctx.fillText(text, 160, 44);
+        const tex = new THREE.CanvasTexture(canvas);
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true });
+        const sprite = new THREE.Sprite(mat);
+        sprite.position.set(...pos);
+        sprite.scale.set(size * 4.5, size, 1);
+        scene.add(sprite);
+      }
+      makeLabel("Tags (X)", [0, -0.35, -3.5]);
+      makeLabel("Timeline (Z)", [-3.9, -0.35, 0]);
+      makeLabel("Intensity (Y)", [-4.0, 1.9, -3]);
+
+      let surface = null;
+      let wire = null;
+      let hoverGrid = { cols: 0, framesCount: 0 };
+      const raycaster = new THREE.Raycaster();
+      const mouseNdc = new THREE.Vector2();
+
+      function formatTagName(tagKey) {
+        return String(tagKey || "").replaceAll("_", " ");
+      }
+
+      function describeIntensity(value) {
+        if (value >= 78) return "Peak zone: strong pattern / high impact.";
+        if (value >= 52) return "Active zone: stable signal structure.";
+        if (value >= 28) return "Mid zone: moderate amplitude.";
+        return "Valley zone: low activity level.";
+      }
+
+      function renderSurface(sliceEnd) {
+        if (surface) { scene.remove(surface); surface.geometry.dispose(); surface.material.dispose(); surface = null; }
+        if (wire) { scene.remove(wire); wire.geometry.dispose(); wire.material.dispose(); wire = null; }
+
+        const baseCols = matrix.tags.length;
+        const cols = Math.max(40, baseCols * 8);
+        const framesCount = Math.max(2, Math.min(matrix.frames.length, sliceEnd + 1));
+        hoverGrid = { cols, framesCount };
+        const sx = 6 / Math.max(1, cols - 1);
+        const sz = 6 / Math.max(1, framesCount - 1);
+        const sy = 3 / 100;
+        const vertices = [], colors = [], indices = [];
+        for (let fi = 0; fi < framesCount; fi += 1) {
+          const sampled = sampleRowSmooth(matrix.frames[fi].values, cols);
+          for (let ci = 0; ci < cols; ci += 1) {
+            const x = -3 + ci * sx, z = -3 + fi * sz, val = sampled[ci], y = val * sy;
+            vertices.push(x, y, z);
+            const c = infernoColor(val / 100);
+            colors.push(c[0], c[1], c[2]);
+          }
+        }
+        for (let fi = 0; fi < framesCount - 1; fi += 1) {
+          for (let ci = 0; ci < cols - 1; ci += 1) {
+            const a = fi * cols + ci, b = a + 1, c = (fi + 1) * cols + ci, d2 = c + 1;
+            indices.push(a, c, b, b, c, d2);
+          }
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute("position", new THREE.Float32BufferAttribute(vertices, 3));
+        g.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+        g.setIndex(indices);
+        g.computeVertexNormals();
+        surface = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide }));
+        scene.add(surface);
+
+        if (wireOn) {
+          const wg = new THREE.BufferGeometry();
+          const wv = [];
+          const cStep = Math.max(1, Math.floor(cols / 8));
+          const fStep = Math.max(1, Math.floor(framesCount / 18));
+          for (let fi = 0; fi < framesCount; fi += fStep) {
+            const sampled = sampleRowSmooth(matrix.frames[fi].values, cols);
+            for (let ci = 0; ci < cols - 1; ci += 1) {
+              const x1 = -3 + ci * sx, x2 = -3 + (ci + 1) * sx, z = -3 + fi * sz;
+              const y1 = sampled[ci] * sy, y2 = sampled[ci + 1] * sy;
+              wv.push(x1, y1 + 0.003, z, x2, y2 + 0.003, z);
+            }
+          }
+          for (let ci = 0; ci < cols; ci += cStep) {
+            for (let fi = 0; fi < framesCount - 1; fi += 1) {
+              const x = -3 + ci * sx, z1 = -3 + fi * sz, z2 = -3 + (fi + 1) * sz;
+              const sampled1 = sampleRowSmooth(matrix.frames[fi].values, cols);
+              const sampled2 = sampleRowSmooth(matrix.frames[fi + 1].values, cols);
+              const y1 = sampled1[ci] * sy, y2 = sampled2[ci] * sy;
+              wv.push(x, y1 + 0.003, z1, x, y2 + 0.003, z2);
+            }
+          }
+          wg.setAttribute("position", new THREE.Float32BufferAttribute(wv, 3));
+          wire = new THREE.LineSegments(wg, new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12 }));
+          scene.add(wire);
+        }
+
+        meta.textContent = `Frame ${Math.min(timeSlice + 1, matrix.frames.length)}/${matrix.frames.length}`;
+        renderer.render(scene, camera);
+      }
+
+      function refreshFrameRange() {
+        frameSlider.max = String(Math.max(0, matrix.frames.length - 1));
+        const maxFrame = Math.max(0, matrix.frames.length - 1);
+        timeSlice = maxFrame;
+        frameSlider.value = String(maxFrame);
+      }
+
+      refreshFrameRange();
+      renderSurface(timeSlice);
+      log("INFO", "demo.main", "Demo initialisiert", {
+        trace_id: traceId,
+        frame_count: matrix.frames.length,
+        tag_count: matrix.tags.length,
+        month_filter_mode: filterConfig.mode,
+      });
+
+      let isDragging = false, prevX = 0, prevY = 0, theta = Math.PI / 4, phi = Math.PI / 5, radius = 11;
+      const updateCamera = () => {
+        camera.position.x = radius * Math.sin(theta) * Math.cos(phi);
+        camera.position.y = radius * Math.sin(phi) + 1;
+        camera.position.z = radius * Math.cos(theta) * Math.cos(phi);
+        camera.lookAt(0, 0.8, 0);
+        renderer.render(scene, camera);
+      };
+      updateCamera();
+      const el = renderer.domElement;
+      el.addEventListener("mousedown", (e) => { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
+      el.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        theta -= (e.clientX - prevX) * 0.005;
+        phi = Math.max(0.05, Math.min(Math.PI / 2.2, phi + (e.clientY - prevY) * 0.005));
+        prevX = e.clientX; prevY = e.clientY; updateCamera();
+      });
+      el.addEventListener("mouseup", () => { isDragging = false; });
+      el.addEventListener("mouseleave", () => { isDragging = false; });
+      el.addEventListener("mouseleave", () => {
+        hoverTip.style.display = "none";
+        smartDescription.textContent = "Hover over the surface to inspect values and context.";
+      });
+      el.addEventListener("wheel", (e) => { e.preventDefault(); radius = Math.max(5, Math.min(20, radius + e.deltaY * 0.01)); updateCamera(); }, { passive: false });
+      el.addEventListener("mousemove", (e) => {
+        const rect = el.getBoundingClientRect();
+        mouseNdc.x = ((e.clientX - rect.left) / Math.max(1, rect.width)) * 2 - 1;
+        mouseNdc.y = -((e.clientY - rect.top) / Math.max(1, rect.height)) * 2 + 1;
+
+        if (!surface || !surface.geometry || !hoverGrid.cols || !hoverGrid.framesCount) {
+          hoverTip.style.display = "none";
+          return;
+        }
+        raycaster.setFromCamera(mouseNdc, camera);
+        const hits = raycaster.intersectObject(surface, false);
+        if (!hits.length || !hits[0].point) {
+          hoverTip.style.display = "none";
+          return;
+        }
+
+        const hit = hits[0].point;
+        const uX = (hit.x + 3) / 6;
+        const uZ = (hit.z + 3) / 6;
+        const colIdx = Math.max(0, Math.min(hoverGrid.cols - 1, Math.round(uX * (hoverGrid.cols - 1))));
+        const frameIdx = Math.max(0, Math.min(hoverGrid.framesCount - 1, Math.round(uZ * (hoverGrid.framesCount - 1))));
+        const tagIdx = Math.max(0, Math.min(matrix.tags.length - 1, Math.round((colIdx / Math.max(1, hoverGrid.cols - 1)) * (matrix.tags.length - 1))));
+        const monthIdx = Math.max(0, Math.min(matrix.months.length - 1, Math.round((frameIdx / Math.max(1, hoverGrid.framesCount - 1)) * (matrix.months.length - 1))));
+        const intensity = Math.max(0, Math.min(100, (hit.y / 3) * 100));
+        const tagLabel = formatTagName(matrix.tags[tagIdx]);
+        const monthLabel = matrix.months[monthIdx] || "n/a";
+        const desc = describeIntensity(intensity);
+
+        hoverTip.style.display = "block";
+        hoverTip.style.left = `${e.clientX + 14}px`;
+        hoverTip.style.top = `${e.clientY + 12}px`;
+        hoverTip.textContent = `${monthLabel} | ${tagLabel} | Y=${intensity.toFixed(1)}`;
+        smartDescription.textContent = `Smart insight: ${monthLabel}, ${tagLabel}. ${desc}`;
+      });
+
+      window.addEventListener("resize", () => {
+        const w = canvasWrap.clientWidth || 980, h = canvasWrap.clientHeight || 640;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        renderer.render(scene, camera);
+      });
+
+      playBtn.onclick = () => {
+        animating = !animating;
+        playBtn.textContent = animating ? "■ Stop" : "▶ Animate";
+        if (!animating) {
+          if (frameReq) cancelAnimationFrame(frameReq);
+          return;
+        }
+        let accum = 0;
+        let lastTs = performance.now();
+        const run = (now) => {
+          const dt = Math.max(0.001, Math.min(0.08, (now - lastTs) / 1000));
+          lastTs = now;
+
+          rhythmPhase += dt * (0.8 + speed * 0.35);
+          let rhythmicSpeed = speed;
+          if (rhythmMode === "smooth") {
+            const groove = 0.8 + 0.2 * (0.5 + 0.5 * Math.sin(rhythmPhase * 2.0 * Math.PI));
+            rhythmicSpeed = speed * groove;
+          } else if (rhythmMode === "pulse") {
+            const groove = 0.72 + 0.28 * (0.5 + 0.5 * Math.sin(rhythmPhase * 2.0 * Math.PI));
+            const beat = (rhythmPhase * 2.0 * Math.PI) % (2.0 * Math.PI);
+            const pulse = Math.exp(-0.5 * Math.pow(beat / 0.42, 2));
+            rhythmicSpeed = speed * (groove + 0.9 * pulse);
+          } else if (rhythmMode === "chaotic") {
+            const wobble = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin(rhythmPhase * 5.1));
+            const jitter = 0.9 + 0.2 * Math.sin(rhythmPhase * 13.7 + 1.2);
+            rhythmicSpeed = speed * wobble * jitter;
+          }
+
+          accum += rhythmicSpeed * dt * 14.0;
+          if (accum >= 1) {
+            timeSlice = (timeSlice + Math.floor(accum)) % Math.max(1, matrix.frames.length);
+            accum %= 1;
+            frameSlider.value = String(timeSlice);
+            renderSurface(timeSlice);
+          }
+          frameReq = requestAnimationFrame(run);
+        };
+        frameReq = requestAnimationFrame(run);
+      };
+
+      wireBtn.onclick = () => {
+        wireOn = !wireOn;
+        wireBtn.classList.toggle("active", wireOn);
+        wireBtn.textContent = wireOn ? "Wire On" : "Wire Off";
+        renderSurface(timeSlice);
+      };
+
+      speedSlider.oninput = () => { speed = Number(speedSlider.value) || 1.2; };
+      rhythmModeSelect.onchange = () => {
+        rhythmMode = rhythmModeSelect.value || "linear";
+        log("INFO", "demo.ui.rhythm", "Rhythm mode changed", {
+          trace_id: traceId,
+          rhythm_mode: rhythmMode,
+        });
+      };
+      frameSlider.oninput = () => {
+        timeSlice = Number(frameSlider.value) || 0;
+        renderSurface(timeSlice);
+      };
+
+      presetButtons.forEach((btn) => {
+        btn.onclick = () => {
+          presetButtons.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          metricPreset = btn.dataset.preset || "messages";
+          matrix = toFrames(data, metricPreset, filterConfig);
+          timeSlice = Math.max(0, matrix.frames.length - 1);
+          refreshFrameRange();
+          renderSurface(timeSlice);
+          log("INFO", "demo.ui", "Preset changed", { trace_id: traceId, preset: metricPreset });
+        };
+      });
+
+      timeRange.onchange = () => {
+        filterConfig.mode = timeRange.value || "all";
+      };
+      fromMonth.onchange = () => {
+        filterConfig.fromMonth = fromMonth.value;
+      };
+      toMonth.onchange = () => {
+        filterConfig.toMonth = toMonth.value;
+      };
+      recalcBtn.onclick = () => {
+        matrix = toFrames(data, metricPreset, filterConfig);
+        timeSlice = Math.max(0, matrix.frames.length - 1);
+        refreshFrameRange();
+        renderSurface(timeSlice);
+        log("INFO", "demo.ui.recalculate", "Surface recalculated", {
+          trace_id: traceId,
+          metric_preset: metricPreset,
+          month_filter_mode: filterConfig.mode,
+          from_month: filterConfig.fromMonth,
+          to_month: filterConfig.toMonth,
+          frame_count: matrix.frames.length,
+        });
+      };
+    }
+
+    main().catch((error) => {
+      log("CRITICAL", "demo.main", "Demo failed", {
+        error_code: "DEMO_INIT_FAILED",
+        error_message: error?.message || String(error),
+        stack_trace: error?.stack || "stack_unavailable",
+      });
+    });
+  </script>
+</body>
+</html>
