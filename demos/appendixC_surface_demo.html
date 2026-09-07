@@ -5,7 +5,7 @@ Created: 2026-03-31
 Last updated: 2026-03-31
 -->
 <!doctype html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -76,7 +76,8 @@ Last updated: 2026-03-31
   <div id="root">
     <div id="header">
       <h1 id="title">Appendix C Data Surface</h1>
-      <div id="subtitle">X = Tag baselines, Z = timeline, Y = intensity per metric</div>
+      <div id="subtitle">X = tag baselines, Z = timeline, Y = intensity per metric</div>
+      <div id="dataSourceNote" style="font-size:11px;opacity:0.72;margin-top:4px;color:#b8d7e7;">Synthetic demo topology (12 months)</div>
       <div id="smartDescription">Hover over the surface to inspect values and context.</div>
     </div>
     <div id="canvasWrap"></div>
@@ -315,17 +316,35 @@ Last updated: 2026-03-31
       async function loadDataWithFallback() {
         const params = new URLSearchParams(window.location.search);
         const source = (params.get("source") || "").toLowerCase();
-        const preferMock = source === "mock";
+        // Default: prefer mock (12-month topology). Use ?source=pipeline for built data only.
+        const preferMock = source !== "pipeline";
         const candidates = preferMock
-          ? ["./mock_data/appendix_c_mock_data.json", "./data/appendix_c_surface_data.json"]
-          : ["./data/appendix_c_surface_data.json", "./mock_data/appendix_c_mock_data.json"];
+          ? ["../mock_data/appendix_c_mock_data.json", "../data/appendix_c_surface_data.json"]
+          : ["../data/appendix_c_surface_data.json", "../mock_data/appendix_c_mock_data.json"];
+        let best = null;
+        let bestScore = -1;
+        let bestUrl = "";
         for (const candidate of candidates) {
           try {
             const response = await fetch(candidate);
             if (!response.ok) continue;
             const json = await response.json();
-            log("INFO", "demo.data", "Data source loaded", { trace_id: traceId, source_url: candidate });
-            return json;
+            const monthCount = Object.keys(json?.statistical_reference?.monthly_baseline || {}).length;
+            const waveCount = Array.isArray(json?.surface_wave?.months) ? json.surface_wave.months.length : 0;
+            // Thin pipeline dumps (few months, no wave) lose to the mock ridge series.
+            const score = monthCount * 10 + (waveCount > 0 ? 100 : 0);
+            log("INFO", "demo.data", "Data source candidate scored", {
+              trace_id: traceId,
+              source_url: candidate,
+              month_count: monthCount,
+              wave_months: waveCount,
+              score,
+            });
+            if (score > bestScore) {
+              best = json;
+              bestScore = score;
+              bestUrl = candidate;
+            }
           } catch (error) {
             log("WARN", "demo.data", "Data source failed", {
               trace_id: traceId,
@@ -334,7 +353,13 @@ Last updated: 2026-03-31
             });
           }
         }
-        throw new Error("No valid data source found (pipeline/mock).");
+        if (!best) throw new Error("No valid data source found (pipeline/mock).");
+        log("INFO", "demo.data", "Data source selected", {
+          trace_id: traceId,
+          source_url: bestUrl,
+          score: bestScore,
+        });
+        return best;
       }
 
       const data = await loadDataWithFallback();
@@ -541,7 +566,7 @@ Last updated: 2026-03-31
           scene.add(wire);
         }
 
-        meta.textContent = `Frame ${Math.min(timeSlice + 1, matrix.frames.length)}/${matrix.frames.length}`;
+        meta.textContent = `Frame ${Math.min(timeSlice + 1, matrix.frames.length)}/${matrix.frames.length} | synthetic topology`;
         renderer.render(scene, camera);
       }
 

@@ -33,7 +33,9 @@ import yaml  # pip install pyyaml
 # CONFIG LOADER
 # ─────────────────────────────────────────────────────────────────────────────
 
-def load_taxonomy(path: str = "appendix_c_taxonomy.yaml") -> Dict[str, Any]:
+def load_taxonomy(path: str | None = None) -> Dict[str, Any]:
+    if path is None:
+        path = str(Path(__file__).resolve().parents[2] / "config" / "appendix_c_taxonomy.yaml")
     with open(path, "r", encoding="utf-8") as f:
         return yaml.safe_load(f)
 
@@ -841,9 +843,11 @@ def generate_report(
 
 def main(
     jsonl_path:    str = "appendix_c_sessions.jsonl",
-    taxonomy_path: str = "appendix_c_taxonomy.yaml",
+    taxonomy_path: str | None = None,
     report_path:   str = "appendix_c_dissection_report.txt",
 ) -> None:
+    if taxonomy_path is None:
+        taxonomy_path = str(Path(__file__).resolve().parents[2] / "config" / "appendix_c_taxonomy.yaml")
     if not os.path.exists(jsonl_path):
         print(f"[ERROR] Session JSONL not found: {jsonl_path}")
         return

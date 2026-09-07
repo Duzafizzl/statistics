@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 168" role="img" aria-labelledby="pipelineTitle pipelineDesc">
+  <!-- File: pipeline.svg. Created: 2026-09-07. Last updated: 2026-09-07 -->
+  <title id="pipelineTitle">Appendix C analysis pipeline</title>
+  <desc id="pipelineDesc">Session logs and taxonomy feed a classifier, then surface JSON, then the interactive 3D view.</desc>
+  <rect width="860" height="168" fill="#f4f7f9"/>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#275879"/>
+    </marker>
+  </defs>
+  <rect fill="#ffffff" stroke="#275879" stroke-width="1.4" x="8" y="36" width="148" height="72" rx="8"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="82" y="68" text-anchor="middle">Session logs</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="82" y="88" text-anchor="middle">JSONL (C.7)</text>
+  <rect fill="#ffffff" stroke="#275879" stroke-width="1.4" x="186" y="36" width="148" height="72" rx="8"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="260" y="68" text-anchor="middle">Taxonomy</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="260" y="88" text-anchor="middle">YAML baselines</text>
+  <rect fill="#ffffff" stroke="#275879" stroke-width="1.4" x="364" y="36" width="148" height="72" rx="8"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="438" y="68" text-anchor="middle">Classifier</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="438" y="88" text-anchor="middle">states, flags</text>
+  <rect fill="#ffffff" stroke="#275879" stroke-width="1.4" x="542" y="36" width="148" height="72" rx="8"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="616" y="68" text-anchor="middle">Surface JSON</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="616" y="88" text-anchor="middle">tags over time</text>
+  <rect fill="#ffffff" stroke="#275879" stroke-width="1.4" x="720" y="36" width="132" height="72" rx="8"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="786" y="68" text-anchor="middle">3D surface</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="786" y="88" text-anchor="middle">inspectable</text>
+  <path stroke="#275879" stroke-width="1.6" fill="none" marker-end="url(#arrow)" d="M158,72 H182"/>
+  <path stroke="#275879" stroke-width="1.6" fill="none" marker-end="url(#arrow)" d="M336,72 H360"/>
+  <path stroke="#275879" stroke-width="1.6" fill="none" marker-end="url(#arrow)" d="M514,72 H538"/>
+  <path stroke="#275879" stroke-width="1.6" fill="none" marker-end="url(#arrow)" d="M692,72 H716"/>
+</svg>

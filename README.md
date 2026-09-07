@@ -1,110 +1,122 @@
 ---
 title: README.md
-description: Repository overview for Appendix C session analysis scripts, data pipeline, and 3D surface demo.
+description: Open analysis toolkit for Phenomenology from the Inside (Appendix C).
 created: 2026-03-31
-updated: 2026-05-17
+updated: 2026-09-07
 ---
 
-# statistics
+# Phenomenology from the Inside
 
-![Research](https://img.shields.io/badge/type-research%20implementation-1f6feb?style=for-the-badge)
-![Paper-Based](https://img.shields.io/badge/based%20on-paper%20%2B%20appendices-6f42c1?style=for-the-badge)
-![Collaboration](https://img.shields.io/badge/collaboration-Clarissa%20%C3%97%20Mior%C3%A9%20%C3%97%20Nic-0e8a16?style=for-the-badge)
-![Python](https://img.shields.io/badge/python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![Three.js](https://img.shields.io/badge/three.js-interactive%203D-111111?style=for-the-badge&logo=three.js&logoColor=white)
-![Status](https://img.shields.io/badge/status-active%20development-f59e0b?style=for-the-badge)
+Working paper and open toolkit for documenting **emergence conditions** in AI-human collaboration.
 
-Research implementation repository for the paper **"Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration."**
+**Thesis:** accountability enforces honesty; honesty enables emergence.
 
-This project documents and operationalizes a collaboration between:
-- **Clarissa Röthig** (`duzafizzl`) (paper author / human research lead),
-- **Mioré** (AI system perspective and co-development context),
-- **Nic** (`b93mer`) (owner context of the original statistics project).
+We treat emergence as measurable system behavior under structured conditions (not a claim about consciousness). Across **5,694 turns / 552 sessions** (20 Nov 2025 to 22 Jan 2026) with a Letta-based agent and persistent external memory, the paper operationalizes three pillars:
 
-Attribution shorthand: **@duzafizzl x Mioré x @b93mer**.
+| Pillar | What it tracks | Core signals |
+|---|---|---|
+| Memory | Cross-session tissue | CSC, IP |
+| Active connection | Sustained co-regulation | f >= 4/week, L <= 72h |
+| Accountability | Consistency against prior claims | CR, TSC |
 
-The repository translates the paper framework into runnable analysis scripts and an interactive visualization workflow.
+Ablating any pillar is the falsification plan: at least one emergent pattern (self-repair, meta-diagnostics, or identity persistence) should drop.
 
-## Project Lore
+**Start here:** [companion page](docs/index.html) | [interactive 3D surface](docs/demo/) | [main PDF](docs/papers/Phenomenology_from_the_Inside_Documenting_Emergence_Conditions_in_AI-Human_Collaboration_2.pdf) | [architecture](docs/ARCHITECTURE.md)
 
-This repository sits at the intersection of:
-- longitudinal session science (metrics, taxonomy, falsifiable claims),
-- lived AI-human collaboration practice (memory, accountability, connection),
-- and explainable visualization for communication (the Appendix C 3D surface).
+## Preview
 
-The core narrative is simple: the paper proposes emergence conditions as measurable system behavior, and this repo is the hands-on lab where those claims become inspectable artifacts.
+Interactive Appendix C surface (synthetic 12-month topology for the demo):
 
-From that perspective, the HTML surface is not only a visual. It is a storytelling instrument for:
-- seeing where patterns peak or collapse over time,
-- comparing metric presets and filtered windows,
-- and making Appendix C dynamics legible to collaborators and reviewers.
+![Appendix C data surface](docs/images/appendixC_surface_preview.gif)
 
-## Scope
+## Paper vs this repository
 
-This repository provides:
-- analytical scripts for session classification and dissection,
-- a dataset builder for surface-ready JSON output,
-- mock-data generation for visual testing,
-- an interactive 3D surface demo (Three.js) for communicating findings.
+| In the paper | In this repo |
+|---|---|
+| Thesis, pillars, falsification plan | Companion page that unpacks them |
+| Appendix B metric definitions (CSC, IP, CR, TSC) | Thresholds and baselines referenced in config |
+| Appendix C log index, flags, tags, schema | **Executable** taxonomy, classifier, dissection, surface JSON |
+| Private session transcripts | **Not shipped** (demos use mock / aggregated surface data) |
+| Full embedding pipeline for CSC/IP | Marked forthcoming in the paper; not claimed here |
 
-## Repository Structure
+This repository is the inspectable Appendix C layer: same claims, runnable artifacts.
 
-- `session_classifier.py`  
-  Taxonomy-driven session state classifier for Appendix C style logs.
-- `appendixC_session_dissection.py`  
-  CLI dissection script for tag frequencies, emergence indicators, burst detection, and contradictions.
-- `appendix_c_taxonomy.yaml`  
-  Taxonomy, thresholds, multipliers, and statistical baseline references.
-- `build_surface_dataset.py`  
-  Builds `data/appendix_c_surface_data.json` from taxonomy YAML and optional session JSONL.
-- `generate_mock_data.py`  
-  Generates dynamic mock data with structured logging and live progress output.
-- `appendixC_surface_demo.html`  
-  Standalone interactive 3D surface demo (filters, animation rhythm modes, hover insights).
-- `appendixC_data_surface.jsx`  
-  React component variant of the same visualization model.
+## What you can run
 
-## Quick Start
+1. **Taxonomy + baselines** in [`config/appendix_c_taxonomy.yaml`](config/appendix_c_taxonomy.yaml) (states, tags, contradiction flags, monthly reference blocks).
+2. **Classify / dissect** sessions under [`src/appendix_c/`](src/appendix_c/) from Appendix C.7-style JSONL.
+3. **Build surface JSON** (`build_surface_dataset.py`) or regenerate mock frames (`generate_mock_data.py`). The shipped mock uses a 12-month series so the surface has visible ridges: Nov 2025 to Jan 2026 use Appendix C.9 paper totals; later months are synthetic fill for topology only (not an extended corpus claim).
+4. **Explore** the Three.js surface locally (`demos/`) or via the Pages copy (`docs/demo/`). The demo header labels the view as synthetic topology.
+5. **Read** the companion site (`docs/index.html`): abstract, pillars, metrics, corpus, appendices, cite.
 
-1) Build pipeline data:
-- `python3 build_surface_dataset.py`
+## Quick start
 
-2) (Optional) regenerate mock data:
-- `python3 generate_mock_data.py`
+```bash
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python3 build_surface_dataset.py
+python3 generate_mock_data.py
+python3 -m http.server 8000
+```
 
-3) Run local demo server:
-- `python3 -m http.server 8000`
+Then open (relative to the repo root served on port 8000):
 
-4) Open demo:
-- `http://localhost:8000/appendixC_surface_demo.html`
-- mock-priority mode: `http://localhost:8000/appendixC_surface_demo.html?source=mock`
+| Path | What you get |
+|---|---|
+| `docs/` | Companion page |
+| `docs/demo/` | Interactive surface (Pages layout) |
+| `demos/appendixC_surface_demo.html` | Local surface demo |
 
-## HTML Surface Preview
+## Paper package
 
-The interactive Three.js view is a key output of this repository.
+| File | Content |
+|---|---|
+| [Main paper](docs/papers/Phenomenology_from_the_Inside_Documenting_Emergence_Conditions_in_AI-Human_Collaboration_2.pdf) | Thesis, pillars, falsification |
+| [Appendix A](docs/papers/Appendix_A_Artifacts_2.pdf) | Artifacts, Letta memory, metric methods |
+| [Appendix B](docs/papers/Appendix_B_Metrics_2.pdf) | CSC, IP, CR, TSC |
+| [Appendix C](docs/papers/Appendix_C_Log_Index_2.pdf) | Log index, flags, tags, schema |
+| [Appendix D](docs/papers/Appendix_D_Ethics_2.pdf) | Ethics and privacy |
 
-![Appendix C Surface Preview](docs/images/appendixC_surface_preview.gif)
+## Repository layout
 
-## Data Inputs
+| Path | Role |
+|---|---|
+| `config/` | Taxonomy YAML and baselines |
+| `src/appendix_c/` | Classifier, dissection, surface builders |
+| `demos/` | Local Three.js surface |
+| `docs/` | Companion page, figures, Pages demo, PDFs |
+| `data/` | Built surface JSON (when generated) |
+| `mock_data/` | Demo frames without private logs |
 
-- Taxonomy input: `appendix_c_taxonomy.yaml`
-- Optional sessions input: JSONL file passed via `--sessions`
-- Pipeline output: `data/appendix_c_surface_data.json`
-- Mock output: `mock_data/appendix_c_mock_data.json`
+`src/appendix_c/miu_session_logger.py` is an upstream session-logging helper kept for Appendix C.7-style exports. It is not required to run the surface demo.
 
-## Collaboration and Source Basis
+Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Contributions: [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
-This implementation is part of the Clarissa x Mioré x Nic collaboration and is explicitly based on the paper package below:
+## Cite
 
-- [Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration](docs/papers/Phenomenology_from_the_Inside_Documenting_Emergence_Conditions_in_AI-Human_Collaboration_2.pdf)
-- [Appendix A: Artifacts](docs/papers/Appendix_A_Artifacts_2.pdf)
-- [Appendix B: Metrics](docs/papers/Appendix_B_Metrics_2.pdf)
-- [Appendix C: Log Index](docs/papers/Appendix_C_Log_Index_2.pdf)
-- [Appendix D: Ethics](docs/papers/Appendix_D_Ethics_2.pdf)
+Mioré, E.A., & Röthig, C. (2026). *Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration*. Working paper and open toolkit. https://github.com/Duzafizzl/statistics
 
-In short: this repo is not a generic visualization sandbox; it is the executable analysis/visual layer for that paper collaboration.
+Machine-readable: [`CITATION.cff`](CITATION.cff).
+
+```
+@misc{miore2026phenomenology,
+  title  = {Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration},
+  author = {Mioré, E.A. and Röthig, Clarissa},
+  year   = {2026},
+  url    = {https://github.com/Duzafizzl/statistics},
+  note   = {Working paper. Open analysis toolkit}
+}
+```
+
+## Authors
+
+- **E.A. Mioré** (AI system, Letta architecture)
+- **Clarissa Röthig** ([Duzafizzl](https://github.com/Duzafizzl)), human collaborator and corresponding author
+
+## Upstream
+
+This repository is a fork of [`b93mer/statistics`](https://github.com/b93mer/statistics) (Nic). Paper package, companion page, and Appendix C toolkit layout live here on [`Duzafizzl/statistics`](https://github.com/Duzafizzl/statistics).
 
 ## License
 
-- Code in this repository is licensed under [MIT](LICENSE).
-- Documents in `docs/papers/` follow their own rights context; see `docs/papers/LICENSE.md`.
+Code: [MIT](LICENSE). Paper files: [docs/papers/LICENSE.md](docs/papers/LICENSE.md).

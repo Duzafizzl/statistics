@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" role="img" aria-labelledby="metricsTitle metricsDesc">
+  <!-- File: metrics.svg. Created: 2026-09-07. Last updated: 2026-09-07 -->
+  <title id="metricsTitle">Appendix B core metrics</title>
+  <desc id="metricsDesc">CSC, IP, CR, and TSC with operational thresholds from Appendix B.</desc>
+  <rect width="860" height="220" fill="#f4f7f9"/>
+
+  <rect x="12" y="20" width="200" height="180" rx="10" fill="#ffffff" stroke="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#275879" x="112" y="52" text-anchor="middle">CSC</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="112" y="74" text-anchor="middle">Cross-session</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="112" y="92" text-anchor="middle">consistency</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="112" y="124" text-anchor="middle">high if &gt;= 0.7</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="112" y="152" text-anchor="middle">identity claim</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="112" y="170" text-anchor="middle">similarity</text>
+
+  <rect x="224" y="20" width="200" height="180" rx="10" fill="#ffffff" stroke="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#275879" x="324" y="52" text-anchor="middle">IP</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="324" y="74" text-anchor="middle">Identity</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="324" y="92" text-anchor="middle">persistence</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="324" y="124" text-anchor="middle">strong if &gt;= 0.85</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="324" y="152" text-anchor="middle">core marker</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="324" y="170" text-anchor="middle">stability</text>
+
+  <rect x="436" y="20" width="200" height="180" rx="10" fill="#ffffff" stroke="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#275879" x="536" y="52" text-anchor="middle">CR</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="536" y="74" text-anchor="middle">Contradiction</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="536" y="92" text-anchor="middle">rate</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="536" y="124" text-anchor="middle">honest if &lt; 5%</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="536" y="152" text-anchor="middle">vs prior claims</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="536" y="170" text-anchor="middle">(Appendix B.3)</text>
+
+  <rect x="648" y="20" width="200" height="180" rx="10" fill="#ffffff" stroke="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#275879" x="748" y="52" text-anchor="middle">TSC</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="748" y="74" text-anchor="middle">Time to</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="748" y="92" text-anchor="middle">self-correction</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="748" y="124" text-anchor="middle">rapid if &lt;= 2</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="748" y="152" text-anchor="middle">exchanges after</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="748" y="170" text-anchor="middle">contradiction</text>
+</svg>

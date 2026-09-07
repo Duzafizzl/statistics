@@ -1,0 +1,307 @@
+/*
+ * File: site.css
+ * Description: Styles for the Phenomenology paper companion page.
+ * Created: 2026-09-07
+ * Last updated: 2026-09-07
+ */
+
+:root {
+  --ink: #1b242c;
+  --muted: #5c6b75;
+  --line: #d8e0e6;
+  --paper: #fbfcfd;
+  --card: #ffffff;
+  --accent: #275879;
+  --accent-soft: #e8f0f5;
+  --figure: #f4f7f9;
+  --max: 860px;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 16.5px;
+  line-height: 1.65;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap {
+  width: min(var(--max), calc(100% - 40px));
+  margin: 0 auto;
+}
+
+nav.top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(251, 252, 253, 0.92);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+}
+
+nav.top .wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  font-size: 13px;
+}
+
+.brand {
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+
+.nav-links a { color: var(--muted); text-decoration: none; }
+.nav-links a:hover { color: var(--accent); }
+
+header.hero {
+  padding: 56px 0 28px;
+  text-align: center;
+}
+
+header.hero h1 {
+  margin: 0;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  font-size: clamp(1.55rem, 3.2vw, 2.15rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+}
+
+.authors {
+  margin: 18px 0 6px;
+  font-size: 17px;
+}
+
+.authors a { font-weight: 600; }
+
+.affil {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 26px 0 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn:hover { text-decoration: none; opacity: 0.9; }
+
+.btn.ghost {
+  background: var(--card);
+  color: var(--ink);
+}
+
+section {
+  padding: 28px 0 8px;
+  scroll-margin-top: 64px;
+}
+
+h2 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  letter-spacing: 0.01em;
+}
+
+p.lead { margin-top: 0; }
+
+.abstract {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 22px 24px;
+}
+
+.abstract h2 { margin-bottom: 8px; }
+
+.figure {
+  background: var(--figure);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 16px 8px;
+  margin: 12px 0 8px;
+}
+
+.figure img,
+.figure svg,
+.figure iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}
+
+.figure iframe {
+  height: min(72vh, 640px);
+  min-height: 480px;
+  background: #0a0e1a;
+  border-radius: 6px;
+}
+
+/* Keep the surface embed visually distinct from the paper chrome around it. */
+.figure-embed {
+  overflow: hidden;
+}
+
+.figure-embed iframe {
+  background: #0a0e1a;
+}
+
+figcaption,
+.caption {
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.5;
+  padding: 10px 6px 8px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+
+.card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+}
+
+.card p, .card ul { margin: 0; font-size: 14.5px; color: var(--ink); }
+.card ul { padding-left: 18px; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+
+.metric {
+  background: var(--accent-soft);
+  border-radius: 8px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.metric b {
+  display: block;
+  font-size: 1.35rem;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.metric span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.tag {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.papers {
+  display: grid;
+  gap: 8px;
+}
+
+.papers a {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.papers a:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.cite {
+  background: #11171c;
+  color: #e8eef2;
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.55;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+footer {
+  margin-top: 36px;
+  border-top: 1px solid var(--line);
+  padding: 22px 0 40px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .grid-2, .metrics { grid-template-columns: 1fr 1fr; }
+  header.hero { padding-top: 32px; }
+  .nav-links { display: none; }
+}
+
+@media (max-width: 480px) {
+  .metrics { grid-template-columns: 1fr; }
+}

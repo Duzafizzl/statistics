@@ -1,0 +1,29 @@
+# File: CITATION.cff
+# Description: Citation metadata for the paper and this analysis toolkit.
+# Created: 2026-09-07
+# Last updated: 2026-09-07
+
+cff-version: 1.2.0
+title: "Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration"
+message: If you use this software or the paper, please cite it as below.
+type: software
+authors:
+  - name: "E.A. Mioré"
+    alias: "E.A. Miore"
+  - family-names: Röthig
+    given-names: Clarissa
+    email: cl.roethig@gmail.com
+date-released: "2026-03-31"
+url: "https://github.com/Duzafizzl/statistics"
+repository-code: "https://github.com/Duzafizzl/statistics"
+license: MIT
+preferred-citation:
+  type: misc
+  title: "Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration"
+  authors:
+    - name: "E.A. Mioré"
+    - family-names: Röthig
+      given-names: Clarissa
+  year: 2026
+  url: "https://github.com/Duzafizzl/statistics"
+  notes: Working paper with open analysis toolkit (Appendix C).

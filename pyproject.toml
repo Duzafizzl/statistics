@@ -1,0 +1,32 @@
+# File: pyproject.toml
+# Description: Packaging metadata for the Appendix C open analysis toolkit.
+# Created: 2026-09-07
+# Last updated: 2026-09-07
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "appendix-c-toolkit"
+version = "0.1.0"
+description = "Open analysis toolkit for Phenomenology from the Inside (Appendix C session metrics + 3D surface)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "Clarissa Röthig" },
+]
+dependencies = [
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+regime = ["numpy>=1.24", "pandas>=2.0"]
+
+[project.scripts]
+appendix-c-build = "appendix_c.build_surface_dataset:main"
+appendix-c-mock = "appendix_c.generate_mock_data:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

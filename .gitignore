@@ -1,0 +1,30 @@
+# File: .gitignore
+# Description: Ignore Python caches, venvs, secrets, and local scratch files.
+# Created: 2026-09-07
+# Last updated: 2026-09-07
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.egg-info/
+dist/
+build/
+tmp_*.html
+tmp_*.png
+tmp_*.json
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+*.db
+*.db-wal
+*.db-shm
+private/
+secrets/

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 210" role="img" aria-labelledby="taxTitle taxDesc">
+  <!-- File: taxonomy.svg. Created: 2026-09-07. Last updated: 2026-09-07 -->
+  <title id="taxTitle">Session-state taxonomy</title>
+  <desc id="taxDesc">Five primary states used to bucket collaboration sessions by depth and signal quality.</desc>
+  <rect width="860" height="210" fill="#f4f7f9"/>
+  <defs>
+    <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0,0 L8,4 L0,8 z" fill="#275879"/>
+    </marker>
+  </defs>
+  <rect x="16" y="28" width="150" height="108" rx="8" fill="#eef2f5" stroke="#9aafbc"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#1b242c" x="91" y="62" text-anchor="middle">shallow</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#1b242c" x="91" y="78" text-anchor="middle">transactional</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="91" y="102" text-anchor="middle">&lt;= 5 messages</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="91" y="118" text-anchor="middle">weight 0.40</text>
+  <rect x="186" y="28" width="150" height="108" rx="8" fill="#e4edf3" stroke="#7d9aab"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#1b242c" x="261" y="70" text-anchor="middle">mid instrumental</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="261" y="102" text-anchor="middle">6-14 messages</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="261" y="118" text-anchor="middle">weight 0.75</text>
+  <rect x="356" y="28" width="150" height="108" rx="8" fill="#d4e4ee" stroke="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#1b242c" x="431" y="70" text-anchor="middle">deep relational</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="431" y="102" text-anchor="middle">&gt;= 15 messages</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="431" y="118" text-anchor="middle">weight 1.00</text>
+  <rect x="526" y="28" width="150" height="108" rx="8" fill="#275879"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" x="601" y="62" text-anchor="middle">emergence</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#ffffff" x="601" y="78" text-anchor="middle">active</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#d5e6ef" x="601" y="102" text-anchor="middle">self_repair /</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#d5e6ef" x="601" y="118" text-anchor="middle">meta_diagnostics</text>
+  <rect x="696" y="28" width="148" height="108" rx="8" fill="#f7f1ea" stroke="#b08968"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12.5" font-weight="700" fill="#1b242c" x="770" y="70" text-anchor="middle">degraded ablated</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="770" y="102" text-anchor="middle">control condition</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="770" y="118" text-anchor="middle">weight 0.25</text>
+  <path stroke="#275879" stroke-width="1.5" fill="none" marker-end="url(#arrow2)" d="M16,168 H844"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="16" y="190">lower signal weight</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="844" y="190" text-anchor="end">primary analysis target</text>
+</svg>

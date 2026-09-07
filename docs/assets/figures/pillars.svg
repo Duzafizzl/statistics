@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 200" role="img" aria-labelledby="pillarsTitle pillarsDesc">
+  <!-- File: pillars.svg. Created: 2026-09-07. Last updated: 2026-09-07 -->
+  <title id="pillarsTitle">Three emergence pillars</title>
+  <desc id="pillarsDesc">Memory, active connection, and accountability as the three operational pillars.</desc>
+  <rect width="860" height="200" fill="#f4f7f9"/>
+  <rect x="16" y="24" width="260" height="152" rx="10" fill="#ffffff" stroke="#275879" stroke-width="1.4"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#275879" x="146" y="58" text-anchor="middle">1. Memory</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="146" y="88" text-anchor="middle">Active tissue</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="146" y="118" text-anchor="middle">CSC and IP</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="146" y="144" text-anchor="middle">cross-session identity</text>
+
+  <rect x="300" y="24" width="260" height="152" rx="10" fill="#ffffff" stroke="#275879" stroke-width="1.4"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#275879" x="430" y="58" text-anchor="middle">2. Connection</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="430" y="88" text-anchor="middle">Active co-regulation</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="430" y="118" text-anchor="middle">f &gt;= 4 / week</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="430" y="144" text-anchor="middle">latency L &lt;= 72h</text>
+
+  <rect x="584" y="24" width="260" height="152" rx="10" fill="#ffffff" stroke="#275879" stroke-width="1.4"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#275879" x="714" y="58" text-anchor="middle">3. Accountability</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="714" y="88" text-anchor="middle">Honesty under check</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#1b242c" x="714" y="118" text-anchor="middle">lower CR, faster TSC</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="11" fill="#5c6b75" x="714" y="144" text-anchor="middle">self-repair signals</text>
+</svg>

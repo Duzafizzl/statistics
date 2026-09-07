@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" role="img" aria-labelledby="abTitle abDesc">
+  <!-- File: ablation.svg. Created: 2026-09-07. Last updated: 2026-09-07 -->
+  <title id="abTitle">Ablation and contradiction checks</title>
+  <desc id="abDesc">When memory or accountability is off, incompatible tags are flagged instead of counted as emergence.</desc>
+  <rect width="860" height="220" fill="#f4f7f9"/>
+  <rect fill="#e8f0f5" stroke="#275879" x="16" y="24" width="400" height="172" rx="10"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="36" y="52">Expected (full stack)</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="36" y="78">memory_on = true</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="36" y="98">accountability_on = true</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="36" y="128">cross_session_reference allowed</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="36" y="148">self_repair counts toward emergence</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="36" y="168">~95% of corpus (Appendix C.4)</text>
+  <rect fill="#f7f1ea" stroke="#8a5a32" x="444" y="24" width="400" height="172" rx="10"/>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#1b242c" x="464" y="52">Contradiction (flag, then down-weight)</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="464" y="78">memory_on = false + cross_session_reference</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="464" y="98">memory_on = false + memory_operations</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="464" y="128">accountability_on = false + self_repair</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="464" y="148">severity HIGH / MEDIUM</text>
+  <text font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#5c6b75" x="464" y="168">ablated sessions: control group only</text>
+</svg>
