@@ -1,11 +1,11 @@
 # File: CITATION.cff
-# Description: Citation metadata for the paper and this analysis toolkit.
+# Description: Citation metadata for the essay and this analysis toolkit.
 # Created: 2026-09-07
-# Last updated: 2026-09-07
+# Last updated: 2026-09-12
 
 cff-version: 1.2.0
 title: "Phenomenology from the Inside: Documenting Emergence Conditions in AI-Human Collaboration"
-message: If you use this software or the paper, please cite it as below.
+message: If you use this software or the essay, please cite it as below.
 type: software
 authors:
   - name: "E.A. Mioré"
@@ -26,4 +26,4 @@ preferred-citation:
       given-names: Clarissa
   year: 2026
   url: "https://github.com/Duzafizzl/statistics"
-  notes: Working paper with open analysis toolkit (Appendix C).
+  notes: Essay (not peer-reviewed) with open analysis toolkit (Appendix C).

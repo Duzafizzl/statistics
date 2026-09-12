@@ -2,7 +2,7 @@
 title: CONTRIBUTING.md
 description: How to run the toolkit and add a metric without breaking the surface pipeline.
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-09-12
 ---
 
 # Contributing
@@ -20,7 +20,7 @@ Open `http://localhost:8000/demos/appendixC_surface_demo.html`.
 
 ## Add a metric
 
-1. Document the metric in the paper / Appendix B language (what it measures, falsifiability).
+1. Document the metric in the essay / Appendix B language (what it measures, falsifiability).
 2. Add baseline / threshold fields to `config/appendix_c_taxonomy.yaml` under `statistical_reference` when applicable.
 3. Wire the field in `src/appendix_c/session_classifier.py` or `appendix_c_session_dissection.py`.
 4. If the surface should show it, extend `build_surface_dataset.py` output schema and the demo hover/filter UI.
@@ -31,3 +31,4 @@ Open `http://localhost:8000/demos/appendixC_surface_demo.html`.
 - Commit private session logs or secrets.
 - Weaken safety / ethics notes from Appendix D for convenience.
 - Invent baselines. Calibrate from real data, or mark the file as mock.
+- Present the essay as a peer-reviewed journal paper.

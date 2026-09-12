@@ -1,14 +1,14 @@
 ---
 title: ARCHITECTURE.md
-description: How paper appendices map to taxonomy, scripts, JSON, the companion page, and the 3D surface.
+description: How essay appendices map to taxonomy, scripts, JSON, the companion page, and the 3D surface.
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-09-12
 ---
 
 # Architecture
 
 ```text
-Paper (Appendices A to D)
+Essay (Appendices A to D)
         |
         v
 config/appendix_c_taxonomy.yaml
@@ -42,4 +42,4 @@ config/appendix_c_taxonomy.yaml
 
 ## Design intent
 
-The paper treats emergence conditions as measurable system behavior. This repo is the executable layer: same claims, inspectable artifacts. Peaks, collapses, and filtered windows should be visible without reading raw logs.
+The essay treats emergence conditions as measurable system behavior. This repo is the executable layer: same claims, inspectable artifacts. Peaks, collapses, and filtered windows should be visible without reading raw logs.
